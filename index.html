@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050a1a" />
+  <meta name="description" content="世界很大，回忆有坐标" />
+  <title>地球收藏夹</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="./styles.css?v=11" />
+</head>
+<body>
+  <div class="space" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-orbit">🌍</span><strong>地球收藏夹</strong></div>
+      <div class="top-actions">
+        <button id="sharedDiaryBtn" class="icon-action shared-icon" type="button" aria-label="共享日志" title="共享日志">👥</button>
+        <button id="studyBtn" class="icon-action study-icon" type="button" aria-label="留学日记" title="留学日记">🎓</button>
+        <button id="journalBtn" class="icon-action journal-icon" type="button" aria-label="旅行日志" title="旅行日志">🧳</button>
+        <button id="routeBtn" class="icon-action route-icon" type="button" aria-label="足迹路线" title="足迹路线">🛫</button>
+        <button id="calendarBtn" class="icon-action diary-icon" type="button" aria-label="回忆日记" title="回忆日记">📖</button>
+        <button id="backupBtn" class="icon-action backup-icon" type="button" aria-label="备份与恢复" title="备份与恢复">💾</button>
+        <button id="helpBtn" class="icon-action help-icon" type="button" aria-label="使用帮助" title="使用帮助">?</button>
+      </div>
+    </header>
+
+    <section class="globe-stage" aria-label="收藏地球">
+      <div id="globe"></div>
+      <div id="globeFallback" class="globe-fallback hidden"><span>🌍</span><p>3D 地球暂时未加载<br />仍可继续添加和查看收藏</p></div>
+      <div class="globe-vignette" aria-hidden="true"></div>
+      <section id="homeCosmos" class="home-cosmos" aria-label="首页宇宙景象">
+        <div class="wish-meteor">
+          <span class="meteor-light" aria-hidden="true"></span>
+          <p>哇～有流星<br /><b>快许愿</b></p>
+        </div>
+        <div class="home-rocket" aria-hidden="true"><i></i><span>🚀</span></div>
+        <div id="marsMarker" class="mars-marker" title="依据 NASA/JPL 轨道参数按当天日期近似计算">
+          <span class="mars-planet" aria-hidden="true"><i></i></span>
+          <p>或许我们以后生活在那里<small id="marsPositionText">正在计算今日火星位置…</small></p>
+        </div>
+      </section>
+      <div id="zoomHint" class="zoom-hint">双指缩放 · 拖动地球</div>
+      <button id="recenterBtn" class="recenter-btn" type="button" aria-label="回到全球视角">⌖</button>
+    </section>
+    <button id="routeShortcutBtn" class="route-shortcut" type="button"><span>🛫</span>我的足迹路线</button>
+
+    <section id="welcome" class="welcome-card">
+      <p class="eyebrow">YOUR WORLD, YOUR MOMENTS</p>
+      <h1>地球收藏夹</h1>
+      <p>世界很大，回忆有坐标</p>
+      <button id="startBtn" class="primary-btn" type="button">开始收藏 <span>→</span></button>
+    </section>
+
+    <section id="statusBar" class="status-bar hidden" aria-live="polite">
+      <div><span id="collectionCount">0</span><small>件收藏</small></div>
+      <button id="chooseCityBtn" type="button"><span id="currentPlace">选择一个城市</span>⌄</button>
+    </section>
+
+    <button id="addBtn" class="add-btn hidden" type="button"><span>＋</span>添加收藏</button>
+  </main>
+
+  <dialog id="onboardingDialog" class="sheet-dialog onboarding-dialog">
+    <section class="sheet-card onboarding-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">WELCOME TO YOUR WORLD</p><h2>第一次使用指南</h2></div><button id="guideCloseBtn" class="close-btn" type="button" aria-label="关闭使用指南">×</button></div>
+      <article class="guide-intro">
+        <span>🌍</span>
+        <div><h3>这里是“地球收藏夹”</h3><p>把照片、地点、日期和心情收藏在3D地球上。以后可以按城市、路线、日历或旅行日志重新打开这些回忆。</p></div>
+      </article>
+      <div class="guide-section-title"><small>主页按钮说明</small><h3>每个按钮是做什么的？</h3></div>
+      <div class="guide-grid">
+        <article><span>👥</span><div><b>共享日志</b><small>生成朋友共享包，或连接云端和朋友一起写日志。</small></div></article>
+        <article><span>🎓</span><div><b>留学日记</b><small>完成支线任务、每日打卡、增加经验并解锁徽章。</small></div></article>
+        <article><span>🧳</span><div><b>旅行日志</b><small>按日期把旅行照片、心情和好玩的事情整理成一篇日志。</small></div></article>
+        <article><span>🛫</span><div><b>足迹路线</b><small>查看去过的地方，以及飞机、高铁、大巴和邮轮路线。</small></div></article>
+        <article><span>📖</span><div><b>回忆日记</b><small>在日历中查看每天拍过的照片和当时的心情。</small></div></article>
+        <article><span>💾</span><div><b>备份与恢复</b><small>把本机记录保存成备份文件，换设备时可以恢复。</small></div></article>
+        <article><span>?</span><div><b>使用帮助</b><small>以后想再看这份介绍，随时点右上角的问号。</small></div></article>
+        <article><span>⌖</span><div><b>回到全球视角</b><small>地球放得太近时，点它就能重新看到整个地球。</small></div></article>
+        <article><span>＋</span><div><b>添加收藏</b><small>选择地点后，用它上传照片并写下新的回忆。</small></div></article>
+        <article><span>☝️</span><div><b>操作地球</b><small>拖动可以旋转地球，双指缩放可以看城市收藏品。</small></div></article>
+      </div>
+      <label class="guide-reminder"><input id="guideNoReminderInput" type="checkbox" /><span><b>下次不再自动提醒</b><small>勾选后不会再自动弹出，但仍可点击右上角“?”查看。</small></span></label>
+      <button id="guideDoneBtn" class="primary-btn full-btn" type="button">知道了，开始选择地点</button>
+    </section>
+  </dialog>
+
+  <dialog id="backupDialog" class="sheet-dialog">
+    <section class="sheet-card backup-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">KEEP YOUR MEMORIES SAFE</p><h2>💾 备份与恢复</h2></div><button class="close-btn" type="button" data-close="backupDialog">×</button></div>
+      <p class="backup-intro">照片和记录保存在当前浏览器里。建议定期导出备份，防止清理浏览器或更换设备后丢失。</p>
+      <button id="exportBtn" class="backup-choice primary-btn" type="button"><span>↓</span><div><b>导出备份</b><small>把全部照片、收藏和留学日记保存为一个文件</small></div></button>
+      <label class="backup-choice secondary-btn"><span>↑</span><div><b>导入备份</b><small>从以前导出的文件恢复记录，会替换当前本机内容</small></div><input id="importInput" type="file" accept="application/json" hidden /></label>
+      <p class="field-tip">如果只是和朋友交换记录，请使用“共享日志”里的朋友共享包，它会自动合并，不会替换当前内容。</p>
+    </section>
+  </dialog>
+
+  <dialog id="locationDialog" class="sheet-dialog">
+    <form id="locationForm" class="sheet-card">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">CHOOSE A PLACE</p><h2>这次想收藏哪里？</h2></div><button class="close-btn" type="button" data-close="locationDialog">×</button></div>
+      <button id="locateBtn" class="locate-btn" type="button"><span>⌖</span><b>使用我的当前位置</b><small>仅在你点击时定位一次</small></button>
+      <div class="address-search">
+        <input id="addressSearch" type="search" placeholder="搜索地址或地标，例如：金门大桥" />
+        <button id="addressSearchBtn" type="button">在地图查找</button>
+      </div>
+      <div id="flatMap" class="flat-map" aria-label="平面地点地图"></div>
+      <p id="mapStatus" class="map-status">也可以点击地图选择准确位置</p>
+      <div id="locationQuickPicks" class="location-quick-picks" aria-label="加州热门地点"></div>
+      <label class="field"><span>国家</span><input id="countrySearch" list="countryList" autocomplete="off" placeholder="输入或选择国家" required /><datalist id="countryList"></datalist></label>
+      <label class="field"><span>城市</span><input id="citySearch" list="cityList" autocomplete="off" placeholder="输入或选择城市" required /><datalist id="cityList"></datalist></label>
+      <p class="field-tip">中国城市已包含地级行政区和县级市，可直接输入城市名搜索。</p>
+      <p class="field-tip">地址查询使用 OpenStreetMap。请不要输入私人或敏感地址。</p>
+      <button class="primary-btn full-btn" type="submit">带我去这里 <span>→</span></button>
+    </form>
+  </dialog>
+
+  <dialog id="entryDialog" class="sheet-dialog">
+    <form id="entryForm" class="sheet-card entry-form">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">NEW COLLECTION</p><h2 id="entryFormTitle">添加一件收藏</h2></div><button class="close-btn" type="button" data-close="entryDialog">×</button></div>
+      <input id="entryId" type="hidden" />
+      <div class="photo-field">
+        <input id="photoInput" type="file" accept="image/*" hidden />
+        <button id="photoPicker" class="photo-picker" type="button"><span id="photoPrompt">＋</span><b id="photoPickerText">选择一张照片</b><small>照片会压缩后保存在当前浏览器</small></button>
+        <img id="photoPreview" class="photo-preview hidden" alt="照片预览" />
+      </div>
+      <div class="two-columns">
+        <label class="field"><span>国家名称 *</span><input id="countryInput" list="countryList" required /></label>
+        <label class="field"><span>国家代码 *</span><input id="countryCodeInput" maxlength="3" required placeholder="例如 CN" /></label>
+      </div>
+      <div class="two-columns">
+        <label class="field"><span>城市名称 *</span><input id="cityInput" list="cityList" required /></label>
+        <label class="field"><span>日期 *</span><input id="dateInput" type="date" required /></label>
+      </div>
+      <div class="two-columns">
+        <label class="field"><span>纬度 *</span><input id="latInput" type="number" min="-90" max="90" step="any" required /></label>
+        <label class="field"><span>经度 *</span><input id="lngInput" type="number" min="-180" max="180" step="any" required /></label>
+      </div>
+      <label class="field"><span>具体地点（可选）</span><input id="placeInput" maxlength="80" placeholder="例如：外滩观景平台" /></label>
+      <label class="field"><span>照片主体或标志性名称（可选）</span><input id="subjectInput" maxlength="80" placeholder="例如：金门大桥、自由女神像" /></label>
+      <label class="field"><span>从上一站到这里</span><select id="travelModeInput"><option value="plane">✈️ 坐飞机</option><option value="train">🚄 坐高铁</option><option value="bus">🚌 坐大巴</option><option value="cruise">🛳️ 坐邮轮</option></select></label>
+      <label class="study-memory-toggle"><input id="studyMemoryInput" type="checkbox" /><span><b>收录到留学日记</b><small>把这张照片变成留学篇章的一部分</small></span></label>
+      <label class="field"><span>收藏类型</span><select id="typeInput"><option>🏛 建筑</option><option>🍜 食物</option><option>🌳 风景</option><option>🐶 动物</option><option>🎁 物品</option><option>✨ 其他</option></select></label>
+      <label class="field"><span>Emoji 心情</span><select id="moodInput"><option>🥰 很幸福</option><option>🤩 很惊喜</option><option>😌 很平静</option><option>🥹 很感动</option><option>🤤 太好吃了</option><option>😂 很开心</option><option>🌙 有点孤独</option><option>💭 难以形容</option></select></label>
+      <label class="field"><span>写下这个瞬间</span><textarea id="textInput" rows="4" maxlength="600" placeholder="当时发生了什么？为什么想收藏它？"></textarea></label>
+      <button class="primary-btn full-btn" type="submit">保存到地球</button>
+    </form>
+  </dialog>
+
+  <dialog id="detailDialog" class="detail-dialog">
+    <article class="detail-card">
+      <button class="close-btn detail-close" type="button" data-close="detailDialog">×</button>
+      <div class="detail-photo-wrap"><img id="detailPhoto" alt="收藏照片" /><span id="detailType"></span></div>
+      <div class="detail-content">
+        <p id="detailMood" class="detail-mood"></p><h2 id="detailLocation"></h2>
+        <p id="detailSubject" class="detail-subject"></p><p id="detailMeta" class="detail-meta"></p><p id="detailPlace" class="detail-place"></p><p id="detailText" class="detail-text"></p>
+        <div class="detail-actions"><button id="editBtn" class="secondary-btn" type="button">编辑</button><button id="deleteBtn" class="danger-btn" type="button">删除</button></div>
+      </div>
+    </article>
+  </dialog>
+
+  <dialog id="cityDialog" class="sheet-dialog">
+    <section class="sheet-card city-sheet"><div class="sheet-handle"></div><div class="dialog-heading"><div><p class="eyebrow">CITY COLLECTIONS</p><h2 id="cityDialogTitle">城市收藏</h2></div><button class="close-btn" type="button" data-close="cityDialog">×</button></div><div id="cityEntries" class="city-entries"></div></section>
+  </dialog>
+
+  <dialog id="routeDialog" class="sheet-dialog">
+    <section class="sheet-card route-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">MY TRAVEL ROUTE</p><h2>🛫 我的足迹路线</h2></div><button class="close-btn" type="button" data-close="routeDialog">×</button></div>
+      <p class="route-intro">路线会按照照片日期连接。飞机、高铁、大巴和邮轮会用不同颜色与高度显示。</p>
+      <label class="route-toggle"><input id="closeLoopInput" type="checkbox" checked /><span><b>最后连回出发点</b><small>至少有三个不同地点时形成完整一圈</small></span></label>
+      <label class="field"><span>返程交通方式</span><select id="returnModeInput"><option value="plane">✈️ 坐飞机返回</option><option value="train">🚄 坐高铁返回</option><option value="bus">🚌 坐大巴返回</option><option value="cruise">🛳️ 坐邮轮返回</option></select></label>
+      <div id="routeSummary" class="route-summary"></div>
+      <div id="routeList" class="route-list"></div>
+      <button id="viewWholeRouteBtn" class="primary-btn full-btn" type="button">在地球上看完整路线</button>
+    </section>
+  </dialog>
+
+  <dialog id="studyDialog" class="sheet-dialog">
+    <section class="sheet-card study-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">STUDY ABROAD STORY</p><h2>🎓 留学日记</h2></div><button class="close-btn" type="button" data-close="studyDialog">×</button></div>
+      <p class="study-intro">把异国生活变成一场成长冒险。完成支线任务、记录小故事，慢慢解锁属于你的留学篇章。</p>
+
+      <article class="study-player-card">
+        <div class="study-avatar">🧑‍🎓</div>
+        <div>
+          <small id="studyChapter">第一章 · 初到异乡</small>
+          <h3 id="studyLevel">留学生 Lv.1</h3>
+          <div class="study-progress"><i id="studyProgressBar"></i></div>
+          <p id="studyXpText">距离下一等级还差 300 XP</p>
+        </div>
+      </article>
+
+      <div class="study-section-title"><div><small>ACHIEVEMENTS</small><h3>阶段徽章</h3></div><span id="studyDaysText">已打卡 0 天</span></div>
+      <div id="studyBadgeGrid" class="study-badge-grid"></div>
+
+      <section class="daily-checkin-card">
+        <div class="study-section-title"><div><small>DAILY CHECK-IN</small><h3>今天发现了什么？</h3></div><span>每次 ＋1 XP</span></div>
+        <p>每天可以分别打卡一次好风景和好美食。</p>
+        <label class="field"><span>留下一句话（可选）</span><input id="dailyCheckinNote" maxlength="80" placeholder="例如：晚霞像草莓汽水" /></label>
+        <div class="daily-checkin-actions">
+          <button id="sceneryCheckinBtn" type="button"><span>🌄</span><b>今日风景</b><small>打卡 ＋1 XP</small></button>
+          <button id="foodCheckinBtn" type="button"><span>🍜</span><b>今日美食</b><small>打卡 ＋1 XP</small></button>
+        </div>
+        <div id="dailyCheckinStatus" class="daily-checkin-status"></div>
+        <div id="dailyCheckinList" class="daily-checkin-list"></div>
+      </section>
+
+      <div class="two-columns">
+        <label class="field"><span>学校或项目</span><input id="studySchoolInput" maxlength="60" placeholder="例如：UCLA 交换项目" /></label>
+        <label class="field"><span>留学城市</span><input id="studyCityInput" maxlength="40" placeholder="例如：洛杉矶" /></label>
+      </div>
+      <label class="field"><span>留学开始日期</span><input id="studyStartInput" type="date" /></label>
+
+      <div class="study-section-title"><div><small>SIDE QUESTS</small><h3>本周支线任务</h3></div><span id="studyQuestCount">0 / 6</span></div>
+      <div id="studyQuestList" class="study-quest-list"></div>
+
+      <form id="studyNoteForm" class="study-note-form">
+        <div class="study-section-title"><div><small>NEW CHAPTER</small><h3>记录今天的小故事</h3></div><span>＋80 XP</span></div>
+        <div class="two-columns">
+          <label class="field"><span>日期</span><input id="studyNoteDate" type="date" required /></label>
+          <label class="field"><span>当时的心情</span><select id="studyNoteMood"><option>🥰 很幸福</option><option>🤩 很惊喜</option><option>😌 很平静</option><option>🥹 很感动</option><option>😂 很开心</option><option>🌙 有点孤独</option><option>💭 难以形容</option></select></label>
+        </div>
+        <label class="field"><span>章节标题</span><input id="studyNoteTitle" maxlength="60" required placeholder="例如：第一次听懂整节课" /></label>
+        <label class="field"><span>发生了什么</span><textarea id="studyNoteText" rows="3" maxlength="500" required placeholder="今天遇到了什么人、什么挑战，或者什么开心的小事？"></textarea></label>
+        <button class="primary-btn full-btn" type="submit">完成这篇支线故事</button>
+      </form>
+
+      <button id="studyPhotoBtn" class="study-photo-btn" type="button"><span>📷</span><b>添加带照片的留学记忆</b><small>照片也会出现在3D地球和留学日记里</small></button>
+      <div id="studyPhotoList" class="study-photo-list"></div>
+
+      <div class="study-section-title"><div><small>RECENT STORIES</small><h3>最近篇章</h3></div></div>
+      <div id="studyNoteList" class="study-note-list"></div>
+    </section>
+  </dialog>
+
+  <dialog id="sharedDiaryDialog" class="sheet-dialog">
+    <section class="sheet-card shared-diary-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">TOGETHER JOURNAL</p><h2>👥 共享日志</h2></div><button class="close-btn" type="button" data-close="sharedDiaryDialog">×</button></div>
+      <p class="shared-intro">可以用朋友共享包简单互传，也可以连接云端进行多人实时共享。</p>
+
+      <section class="friend-pack-panel">
+        <div class="friend-pack-heading"><div><small>NO CLOUD NEEDED</small><h3>📦 朋友共享包</h3></div><span>不用 CloudBase</span></div>
+        <p>生成一个网页文件发给朋友。朋友直接打开就能只读浏览，也能导入“地球收藏夹”自动合并。</p>
+        <div class="two-columns">
+          <label class="field"><span>你的昵称</span><input id="friendPackNameInput" maxlength="20" placeholder="例如：小月" /></label>
+          <label class="field"><span>共享包标题</span><input id="friendPackTitleInput" maxlength="50" placeholder="例如：我们的加州回忆" /></label>
+        </div>
+        <label class="field"><span>给朋友的话（可选）</span><textarea id="friendPackMessageInput" rows="2" maxlength="300" placeholder="朋友合并后会在本地看到这句话，也可以生成新的共享包回复你。"></textarea></label>
+        <div class="friend-pack-actions">
+          <button id="generateFriendPackBtn" class="primary-btn" type="button">生成朋友共享包</button>
+          <label class="secondary-btn friend-pack-import">合并朋友的共享包<input id="mergeFriendPackInput" type="file" accept=".html,.json,text/html,application/json" hidden /></label>
+        </div>
+        <p class="friend-pack-tip">共享包包含你当前的照片、地点和文字，请只发给信任的人。合并不会删除自己的内容。</p>
+        <div id="friendMessagePanel" class="friend-message-panel hidden">
+          <div class="friend-message-heading"><b>朋友捎来的话</b><button id="clearFriendMessagesBtn" type="button">清空</button></div>
+          <div id="friendMessageList" class="friend-message-list"></div>
+        </div>
+      </section>
+
+      <div class="shared-divider"><span>需要多人实时同步时，再使用云端共享</span></div>
+
+      <section id="cloudSetupPanel" class="cloud-setup-panel">
+        <div class="cloud-status"><i id="cloudStatusDot"></i><span id="cloudStatusText">尚未连接云端</span></div>
+        <label class="field"><span>CloudBase 环境ID</span><input id="cloudEnvInput" autocomplete="off" placeholder="例如：earth-diary-1a2b3c" /></label>
+        <button id="connectCloudBtn" class="primary-btn full-btn" type="button">连接共享日志</button>
+        <p class="field-tip">环境ID不是密码。请不要在这里填写腾讯云SecretId或SecretKey。</p>
+      </section>
+
+      <section id="sharedProfilePanel" class="hidden">
+        <label class="field"><span>你在共享日志里的昵称</span><input id="sharedNicknameInput" maxlength="20" placeholder="例如：小月" /></label>
+        <div id="sharedRoomActions" class="shared-room-actions">
+          <div>
+            <label class="field"><span>创建新共享日志</span><input id="newRoomNameInput" maxlength="40" placeholder="例如：我们的加州交换日记" /></label>
+            <button id="createRoomBtn" class="primary-btn full-btn" type="button">创建并生成邀请码</button>
+          </div>
+          <div>
+            <label class="field"><span>输入朋友的邀请码</span><input id="joinRoomCodeInput" maxlength="24" autocomplete="off" placeholder="输入邀请码" /></label>
+            <button id="joinRoomBtn" class="secondary-btn full-btn" type="button">加入共享日志</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="activeSharedRoom" class="hidden">
+        <article class="shared-room-card">
+          <div><small>当前共享空间</small><h3 id="sharedRoomName">共享日志</h3><p id="sharedMemberText">正在读取成员…</p></div>
+          <button id="leaveRoomBtn" type="button">退出</button>
+        </article>
+        <div class="invite-code-card"><div><small>邀请码</small><b id="sharedInviteCode"></b></div><button id="copyInviteCodeBtn" type="button">复制邀请</button></div>
+
+        <form id="sharedPostForm" class="shared-post-form">
+          <div class="study-section-title"><div><small>NEW SHARED MEMORY</small><h3>发布一条共同回忆</h3></div></div>
+          <input id="sharedPhotoInput" type="file" accept="image/*" hidden />
+          <button id="sharedPhotoPicker" class="shared-photo-picker" type="button"><span>＋</span><b>选择一张照片</b><small>照片会压缩后上传到共享日志</small></button>
+          <img id="sharedPhotoPreview" class="shared-photo-preview hidden" alt="共享照片预览" />
+          <div class="two-columns">
+            <label class="field"><span>日期</span><input id="sharedPostDate" type="date" required /></label>
+            <label class="field"><span>心情</span><select id="sharedPostMood"><option>🥰 很幸福</option><option>🤩 很惊喜</option><option>😌 很平静</option><option>🥹 很感动</option><option>🤤 太好吃了</option><option>😂 很开心</option><option>🌙 有点孤独</option><option>💭 难以形容</option></select></label>
+          </div>
+          <label class="field"><span>想和大家说什么</span><textarea id="sharedPostText" rows="3" maxlength="500" required placeholder="写下照片背后的故事……"></textarea></label>
+          <button class="primary-btn full-btn" type="submit">发布到共享日志</button>
+        </form>
+
+        <div class="shared-feed-heading"><div><small>FRIENDS' MOMENTS</small><h3>我们的共同日志</h3></div><button id="refreshSharedFeedBtn" type="button">刷新</button></div>
+        <div id="sharedFeed" class="shared-feed"></div>
+      </section>
+    </section>
+  </dialog>
+
+  <dialog id="journalDialog" class="sheet-dialog">
+    <section class="sheet-card journal-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">TRAVEL JOURNAL</p><h2>🧳 旅行日志</h2></div><button class="close-btn" type="button" data-close="journalDialog">×</button></div>
+      <p class="journal-intro">选一段旅程，把照片、心情和好玩的事情整理成一篇可以分享的日志。</p>
+      <label class="field"><span>日志标题</span><input id="journalTitleInput" maxlength="60" placeholder="例如：第一次去加州" /></label>
+      <div class="two-columns">
+        <label class="field"><span>开始日期</span><input id="journalStartInput" type="date" /></label>
+        <label class="field"><span>结束日期</span><input id="journalEndInput" type="date" /></label>
+      </div>
+      <label class="field"><span>这趟旅行最好玩的事情</span><textarea id="journalFunInput" rows="3" maxlength="500" placeholder="例如：在海边看到了最漂亮的日落……"></textarea></label>
+      <div id="journalSummary" class="journal-summary"></div>
+      <div id="journalPreview" class="journal-preview"></div>
+      <div class="journal-actions">
+        <button id="copyJournalBtn" class="secondary-btn" type="button">复制分享文字</button>
+        <button id="shareJournalBtn" class="primary-btn" type="button">分享给朋友</button>
+      </div>
+      <p class="field-tip">手机支持时会打开系统分享菜单，并尽量带上旅行照片；不支持时会复制分享文字。</p>
+    </section>
+  </dialog>
+
+  <dialog id="calendarDialog" class="sheet-dialog">
+    <section class="sheet-card calendar-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">MEMORY DIARY</p><h2>📖 回忆日记</h2></div><button class="close-btn" type="button" data-close="calendarDialog">×</button></div>
+      <button id="newDiaryBtn" class="new-diary-btn" type="button"><span>＋</span><b>添加照片日记</b><small>选择照片、日期和当时的心情</small></button>
+      <div class="calendar-nav"><button id="prevMonthBtn" type="button" aria-label="上个月">‹</button><strong id="calendarTitle"></strong><button id="nextMonthBtn" type="button" aria-label="下个月">›</button></div>
+      <div id="moodSummary" class="mood-summary"></div>
+      <div class="weekdays"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      <div id="calendarGrid" class="calendar-grid"></div>
+      <div id="calendarDayList" class="calendar-day-list"></div>
+    </section>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.1/dist/globe.gl.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="./china-cities.js?v=2"></script>
+  <script src="./popular-cities.js?v=1"></script>
+  <script src="./app.js?v=13"></script>
+  <script src="./local-share.js?v=1"></script>
+  <script src="https://static.cloudbase.net/cloudbase-js-sdk/3.0.1/cloudbase.full.js"></script>
+  <script src="./shared-diary.js?v=1"></script>
+</body>
+</html>
