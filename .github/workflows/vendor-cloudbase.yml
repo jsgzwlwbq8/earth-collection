@@ -1,0 +1,35 @@
+name: Vendor CloudBase browser SDK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/vendor-cloudbase.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Build browser bundle
+        run: |
+          mkdir -p /tmp/cloudbase-build
+          cd /tmp/cloudbase-build
+          npm init -y
+          npm install --ignore-scripts @cloudbase/js-sdk@3.6.2 esbuild@0.25.6
+          printf '%s\n' 'import cloudbase from "@cloudbase/js-sdk";' 'window.cloudbase = cloudbase;' > entry.js
+          npx esbuild entry.js --bundle --minify --platform=browser --format=iife --target=es2020 --outfile="$GITHUB_WORKSPACE/cloudbase.bundle.js"
+      - name: Commit browser bundle
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cloudbase.bundle.js
+          git diff --cached --quiet && exit 0
+          git commit -m "内置 CloudBase 浏览器组件"
+          git push
