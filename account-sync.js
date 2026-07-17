@@ -357,10 +357,13 @@
   }
 
   ui.tabs.forEach((tab) => tab.addEventListener("click", () => activatePanel(tab.dataset.accountPanel)));
-  ui.button.addEventListener("click", () => {
+  function openAccountDialog() {
     showAccountState();
     if (!ui.dialog.open) ui.dialog.showModal();
-  });
+  }
+
+  ui.button.addEventListener("click", openAccountDialog);
+  window.addEventListener("earth-open-account", openAccountDialog);
 
   ui.passwordForm.addEventListener("submit", async (event) => {
     event.preventDefault();

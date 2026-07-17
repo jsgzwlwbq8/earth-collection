@@ -540,7 +540,7 @@ function begin() {
   elements.statusBar.classList.remove("hidden");
   elements.addBtn.classList.remove("hidden");
   setTimeout(() => {
-    if (localStorage.getItem(GUIDE_HIDE_KEY) === "1") openLocationDialog();
+    if (localStorage.getItem(GUIDE_HIDE_KEY) === "1") window.dispatchEvent(new CustomEvent("earth-open-account"));
     else openGuide(true);
   }, 380);
 }
@@ -608,7 +608,7 @@ function finishGuide() {
   elements.onboardingDialog.close();
   if (state.guideFromStart) {
     state.guideFromStart = false;
-    openLocationDialog();
+    window.dispatchEvent(new CustomEvent("earth-open-account"));
   }
 }
 
@@ -1634,7 +1634,7 @@ async function start() {
   renderStatus();
   window.EarthCollectionApp.ready = true;
   window.dispatchEvent(new CustomEvent("earth-app-ready"));
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=22").catch(console.error);
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=23").catch(console.error);
 }
 
 start();
