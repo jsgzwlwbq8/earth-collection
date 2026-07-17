@@ -28,6 +28,8 @@ button { cursor: pointer; }
 .journal-icon { font-size: 17px; }
 .study-icon { font-size: 17px; }
 .shared-icon { font-size: 17px; }
+.account-icon { font-size: 17px; }
+.account-icon.signed-in { border-color: rgba(157,231,207,.7); background: rgba(74,184,156,.2); box-shadow: 0 0 18px rgba(91,220,194,.22); }
 .backup-icon { font-size: 16px; }
 .help-icon { font-size: 17px; font-weight: 900; }
 
@@ -104,6 +106,27 @@ h1, h2, p { overflow-wrap: anywhere; }
 .backup-choice.secondary-btn > span { background: rgba(114,167,255,.12); }
 .backup-choice b, .backup-choice small { display: block; }
 .backup-choice small { margin-top: 4px; color: inherit; opacity: .68; font-size: 10px; line-height: 1.45; }
+
+.account-sheet { max-width: 560px; }
+.account-intro { margin: 18px 0 15px; color: #a9b6ca; font-size: 13px; line-height: 1.65; }
+.account-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 5px; border: 1px solid rgba(255,255,255,.08); border-radius: 15px; background: rgba(255,255,255,.035); }
+.account-tab { min-height: 39px; padding: 0 8px; border: 0; border-radius: 11px; color: #8997b0; background: transparent; font-size: 12px; font-weight: 800; }
+.account-tab.active { color: #071c1a; background: #9de7cf; box-shadow: 0 8px 22px rgba(91,220,194,.17); }
+.account-panel { display: none; }
+.account-panel.active { display: block; }
+.account-send-btn { width: 100%; min-height: 46px; margin-top: 12px; border: 1px solid rgba(114,167,255,.24); color: #dce9ff; background: rgba(114,167,255,.1); }
+.account-message { min-height: 20px; margin: 14px 2px 0; color: #9de7cf; font-size: 12px; line-height: 1.55; }
+.account-message.error { color: #ff9d9d; }
+.account-user-card, .sync-status-card { display: flex; align-items: center; gap: 12px; margin-top: 18px; padding: 15px; border: 1px solid rgba(157,231,207,.2); border-radius: 19px; background: linear-gradient(135deg, rgba(157,231,207,.1), rgba(114,167,255,.06)); }
+.account-user-card > span { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; color: #061b19; background: #9de7cf; font-weight: 900; }
+.account-user-card small, .account-user-card strong, .sync-status-card b, .sync-status-card small { display: block; }
+.account-user-card small, .sync-status-card small { color: #8795ad; font-size: 10px; }
+.account-user-card strong { margin-top: 3px; font-size: 15px; }
+.sync-status-card { border-color: rgba(114,167,255,.2); background: rgba(114,167,255,.065); }
+.sync-status-card > span { font-size: 28px; }
+.sync-status-card b { font-size: 13px; }
+.sync-status-card small { margin-top: 4px; }
+.account-logout-btn { width: 100%; min-height: 46px; margin-top: 10px; border: 1px solid rgba(255,255,255,.12); color: #c7d0e2; background: rgba(255,255,255,.045); }
 
 .status-bar { position: absolute; z-index: 8; left: 50%; bottom: max(26px, env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(520px, calc(100% - 116px)); display: flex; align-items: center; gap: 12px; padding: 9px 12px 9px 18px; border: 1px solid var(--line); border-radius: 22px; background: rgba(7,14,34,.72); backdrop-filter: blur(20px); }
 .status-bar > div { display: flex; align-items: baseline; gap: 5px; white-space: nowrap; }

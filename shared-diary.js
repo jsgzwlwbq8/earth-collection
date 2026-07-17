@@ -1,5 +1,6 @@
 (() => {
   const ENV_KEY = "earth-collection-cloudbase-env";
+  const DEFAULT_ENV_ID = "earth-collection-sync-d079e694b4";
   const NICKNAME_KEY = "earth-collection-shared-nickname";
   const ROOM_KEY = "earth-collection-shared-room";
   const COLLECTIONS = {
@@ -121,17 +122,14 @@
     setBusy(ui.connect, true, "正在连接…");
     setStatus("loading", "正在连接云端…");
     try {
-      sharedState.app = cloudbase.init({ env: envId, region: "ap-shanghai" });
-      const auth = sharedState.app.auth;
-      let sessionResult = await auth.getSession();
-      let sessionData = resultData(sessionResult);
-      let user = sessionData?.session?.user;
-      if (!user) {
-        const loginResult = await auth.signInAnonymously();
-        const loginData = resultData(loginResult);
-        user = loginData?.user || loginData?.session?.user;
-      }
-      if (!user?.id) throw new Error("匿名登录没有返回用户ID");
+      sharedState.app = window.EarthCloud?.envId === envId
+        ? window.EarthCloud.app
+        : cloudbase.init({ env: envId, region: "ap-shanghai" });
+      const auth = typeof sharedState.app.auth === "function" ? sharedState.app.auth() : sharedState.app.auth;
+      const sessionResult = await auth.getSession();
+      const sessionData = resultData(sessionResult);
+      const user = sessionData?.session?.user;
+      if (!user?.id) throw new Error("请先点击右上角云朵，登录账号后再使用共享日志");
       sharedState.userId = String(user.id);
       sharedState.db = sharedState.app.database();
       localStorage.setItem(ENV_KEY, envId);
@@ -152,6 +150,7 @@
   function cloudErrorMessage(error) {
     const message = String(error?.message || "");
     if (/domain|来源|permission|denied|unauthorized/i.test(message)) return "连接被拒绝，请检查安全域名和数据库权限";
+    if (/先点击右上角云朵|登录账号/i.test(message)) return message;
     if (/collection|not found|不存在/i.test(message)) return "请先在CloudBase创建四个共享数据集合";
     if (/network|fetch|unreachable/i.test(message)) return "网络连接失败，请稍后重试";
     return message ? `连接失败：${message}` : "连接云端失败，请检查环境ID";
@@ -468,7 +467,7 @@
     }
   }
 
-  ui.env.value = localStorage.getItem(ENV_KEY) || "";
+  ui.env.value = localStorage.getItem(ENV_KEY) || window.EarthCloud?.envId || DEFAULT_ENV_ID;
   ui.nickname.value = localStorage.getItem(NICKNAME_KEY) || "";
   ui.postDate.value = today();
 

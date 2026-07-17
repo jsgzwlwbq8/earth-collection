@@ -8,7 +8,7 @@
   <title>地球收藏夹</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <link rel="stylesheet" href="./styles.css?v=11" />
+  <link rel="stylesheet" href="./styles.css?v=12" />
 </head>
 <body>
   <div class="space" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -17,6 +17,7 @@
     <header class="topbar">
       <div class="brand"><span class="brand-orbit">🌍</span><strong>地球收藏夹</strong></div>
       <div class="top-actions">
+        <button id="accountBtn" class="icon-action account-icon" type="button" aria-label="登录与云同步" title="登录与云同步">👤</button>
         <button id="sharedDiaryBtn" class="icon-action shared-icon" type="button" aria-label="共享日志" title="共享日志">👥</button>
         <button id="studyBtn" class="icon-action study-icon" type="button" aria-label="留学日记" title="留学日记">🎓</button>
         <button id="journalBtn" class="icon-action journal-icon" type="button" aria-label="旅行日志" title="旅行日志">🧳</button>
@@ -96,6 +97,60 @@
       <button id="exportBtn" class="backup-choice primary-btn" type="button"><span>↓</span><div><b>导出备份</b><small>把全部照片、收藏和留学日记保存为一个文件</small></div></button>
       <label class="backup-choice secondary-btn"><span>↑</span><div><b>导入备份</b><small>从以前导出的文件恢复记录，会替换当前本机内容</small></div><input id="importInput" type="file" accept="application/json" hidden /></label>
       <p class="field-tip">如果只是和朋友交换记录，请使用“共享日志”里的朋友共享包，它会自动合并，不会替换当前内容。</p>
+    </section>
+  </dialog>
+
+  <dialog id="accountDialog" class="sheet-dialog">
+    <section class="sheet-card account-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading">
+        <div><p class="eyebrow">ONE ACCOUNT, EVERY BROWSER</p><h2>☁️ 登录与云同步</h2></div>
+        <button class="close-btn" type="button" data-close="accountDialog">×</button>
+      </div>
+
+      <div id="accountSignedOut">
+        <p class="account-intro">登录后，本机收藏会自动合并到你的云端账号。在微信、Safari 或 Chrome 使用同一账号，照片和记录都会回来。</p>
+        <div class="account-tabs" role="tablist" aria-label="登录方式">
+          <button class="account-tab active" type="button" data-account-panel="passwordPanel">密码登录</button>
+          <button class="account-tab" type="button" data-account-panel="emailPanel">邮箱登录</button>
+          <button class="account-tab" type="button" data-account-panel="registerPanel">注册账号</button>
+        </div>
+
+        <form id="passwordLoginForm" class="account-panel active" data-account-panel-id="passwordPanel">
+          <label class="field"><span>用户名或邮箱</span><input id="passwordAccountInput" autocomplete="username" placeholder="输入用户名或邮箱" required /></label>
+          <label class="field"><span>密码</span><input id="passwordInput" type="password" autocomplete="current-password" minlength="6" placeholder="输入密码" required /></label>
+          <button class="primary-btn full-btn" type="submit">登录并同步</button>
+        </form>
+
+        <form id="emailLoginForm" class="account-panel" data-account-panel-id="emailPanel">
+          <label class="field"><span>邮箱</span><input id="emailLoginInput" type="email" autocomplete="email" placeholder="name@example.com" required /></label>
+          <button id="sendEmailCodeBtn" class="secondary-btn account-send-btn" type="button">发送验证码</button>
+          <label id="emailCodeField" class="field hidden"><span>邮箱验证码</span><input id="emailCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="输入邮件里的验证码" /></label>
+          <button id="verifyEmailCodeBtn" class="primary-btn full-btn hidden" type="submit">验证并登录</button>
+          <p class="field-tip">第一次使用这个邮箱时会自动创建账号，不需要付费。</p>
+        </form>
+
+        <form id="registerForm" class="account-panel" data-account-panel-id="registerPanel">
+          <label class="field"><span>用户名</span><input id="registerUsernameInput" autocomplete="username" minlength="5" maxlength="24" pattern="[A-Za-z0-9][A-Za-z0-9._:+@-]{4,23}" placeholder="5–24 位英文、数字或 . _ - +" required /></label>
+          <label class="field"><span>邮箱</span><input id="registerEmailInput" type="email" autocomplete="email" placeholder="用于接收验证码" required /></label>
+          <label class="field"><span>密码</span><input id="registerPasswordInput" type="password" autocomplete="new-password" minlength="8" placeholder="至少 8 位" required /></label>
+          <button id="sendRegisterCodeBtn" class="primary-btn full-btn" type="button">发送注册验证码</button>
+          <label id="registerCodeField" class="field hidden"><span>注册验证码</span><input id="registerCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="输入邮件里的验证码" /></label>
+          <button id="finishRegisterBtn" class="primary-btn full-btn hidden" type="submit">完成注册并同步</button>
+        </form>
+        <p id="accountMessage" class="account-message" role="status" aria-live="polite"></p>
+      </div>
+
+      <div id="accountSignedIn" class="hidden">
+        <div class="account-user-card"><span>✓</span><div><small>当前账号</small><strong id="accountUserName">已登录</strong></div></div>
+        <div class="sync-status-card">
+          <span id="syncStatusIcon">☁️</span>
+          <div><b id="syncStatusText">正在检查云端数据…</b><small id="syncStatusDetail">请保持网络连接</small></div>
+        </div>
+        <button id="syncNowBtn" class="primary-btn full-btn" type="button">立即同步</button>
+        <button id="logoutBtn" class="secondary-btn full-btn account-logout-btn" type="button">退出登录</button>
+        <p class="field-tip">退出登录不会删除这台设备里的收藏。换账号时，系统不会把上一账号的数据上传给新账号。</p>
+      </div>
     </section>
   </dialog>
 
@@ -353,9 +408,10 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="./china-cities.js?v=2"></script>
   <script src="./popular-cities.js?v=1"></script>
-  <script src="./app.js?v=13"></script>
+  <script src="./app.js?v=14"></script>
   <script src="./local-share.js?v=1"></script>
-  <script src="https://static.cloudbase.net/cloudbase-js-sdk/3.0.1/cloudbase.full.js"></script>
-  <script src="./shared-diary.js?v=1"></script>
+  <script src="https://static.cloudbase.net/cloudbase-js-sdk/3.6.2/cloudbase.full.js"></script>
+  <script src="./account-sync.js?v=1"></script>
+  <script src="./shared-diary.js?v=2"></script>
 </body>
 </html>

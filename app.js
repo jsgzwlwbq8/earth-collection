@@ -83,6 +83,9 @@ const state = {
   guideFromStart: false
 };
 const $ = (selector) => document.querySelector(selector);
+function notifyCloudSync(type, detail = {}) {
+  window.dispatchEvent(new CustomEvent("earth-local-change", { detail: { type, ...detail } }));
+}
 const elements = {
   welcome: $("#welcome"), startBtn: $("#startBtn"), globe: $("#globe"), fallback: $("#globeFallback"), homeCosmos: $("#homeCosmos"), marsMarker: $("#marsMarker"), marsPositionText: $("#marsPositionText"), statusBar: $("#statusBar"), addBtn: $("#addBtn"), routeBtn: $("#routeBtn"), routeShortcutBtn: $("#routeShortcutBtn"), journalBtn: $("#journalBtn"), studyBtn: $("#studyBtn"), backupBtn: $("#backupBtn"), backupDialog: $("#backupDialog"), helpBtn: $("#helpBtn"), onboardingDialog: $("#onboardingDialog"), guideCloseBtn: $("#guideCloseBtn"), guideDoneBtn: $("#guideDoneBtn"), guideNoReminderInput: $("#guideNoReminderInput"),
   count: $("#collectionCount"), currentPlace: $("#currentPlace"), chooseCityBtn: $("#chooseCityBtn"), recenterBtn: $("#recenterBtn"), zoomHint: $("#zoomHint"),
@@ -360,6 +363,7 @@ function loadRouteSettings() {
 
 function saveRouteSettings() {
   localStorage.setItem(ROUTE_SETTINGS_KEY, JSON.stringify(state.routeSettings));
+  notifyCloudSync("profile");
 }
 
 function routeStops() {
@@ -745,6 +749,7 @@ function renderRouteDialog() {
         route.to.updatedAt = Date.now();
         try {
           await saveEntry(route.to);
+          notifyCloudSync("entry", { entry: route.to });
         } catch (error) {
           console.error(error);
           route.to.travelMode = previousMode;
@@ -809,6 +814,7 @@ function loadStudyDiary() {
 
 function saveStudyDiary() {
   localStorage.setItem(STUDY_DIARY_KEY, JSON.stringify(state.studyDiary));
+  notifyCloudSync("profile");
 }
 
 function syncStudyProfile() {
@@ -1062,6 +1068,7 @@ function saveJournalDraft() {
     fun: elements.journalFunInput.value.trim()
   };
   localStorage.setItem(JOURNAL_DRAFT_KEY, JSON.stringify(state.journalDraft));
+  notifyCloudSync("profile");
 }
 
 function journalEntries() {
@@ -1502,6 +1509,7 @@ elements.entryForm.addEventListener("submit", async (event) => {
     focusLocation({ country: entry.countryName, code: entry.countryCode, city: entry.cityName, lat: entry.lat, lng: entry.lng });
     renderStatus();
     elements.entryDialog.close();
+    notifyCloudSync("entry", { entry });
     toast(oldEntry ? "收藏已更新" : "已收藏到地球");
   } catch (error) { console.error(error); toast("保存失败，请重试"); }
 });
@@ -1519,6 +1527,7 @@ elements.deleteBtn.addEventListener("click", async () => {
     state.entries = state.entries.filter((item) => item.id !== entry.id);
     elements.detailDialog.close();
     renderStatus();
+    notifyCloudSync("delete", { id: entry.id, updatedAt: Date.now() });
     toast("收藏已删除");
   } catch (error) { console.error(error); toast("删除失败，请重试"); }
 });
@@ -1548,6 +1557,7 @@ elements.importInput.addEventListener("change", async (event) => {
       saveStudyDiary();
     }
     renderStatus();
+    notifyCloudSync("full");
     toast(`成功导入 ${entries.length} 件收藏`);
   } catch (error) { toast(`导入失败：${error.message}`); }
   finally { elements.importInput.value = ""; }
@@ -1559,6 +1569,51 @@ document.querySelectorAll("dialog").forEach((dialog) => dialog.addEventListener(
   if (dialog === elements.onboardingDialog) finishGuide();
   else dialog.close();
 }));
+
+function cloudSnapshot() {
+  return {
+    entries: state.entries.map((entry) => ({ ...entry })),
+    routeSettings: { ...state.routeSettings },
+    journalDraft: { ...state.journalDraft },
+    studyDiary: JSON.parse(JSON.stringify(state.studyDiary))
+  };
+}
+
+async function applyCloudSnapshot(snapshot = {}) {
+  if (Array.isArray(snapshot.entries)) {
+    const entries = snapshot.entries.map(normalizeEntry).filter(Boolean);
+    await replaceEntries(entries);
+    state.entries = entries;
+  }
+  if (snapshot.routeSettings) {
+    state.routeSettings = {
+      closeLoop: snapshot.routeSettings.closeLoop !== false,
+      returnMode: normalizeTravelMode(snapshot.routeSettings.returnMode)
+    };
+    localStorage.setItem(ROUTE_SETTINGS_KEY, JSON.stringify(state.routeSettings));
+  }
+  if (snapshot.journalDraft) {
+    state.journalDraft = {
+      title: String(snapshot.journalDraft.title || ""),
+      startDate: /^\d{4}-\d{2}-\d{2}$/.test(snapshot.journalDraft.startDate) ? snapshot.journalDraft.startDate : "",
+      endDate: /^\d{4}-\d{2}-\d{2}$/.test(snapshot.journalDraft.endDate) ? snapshot.journalDraft.endDate : "",
+      fun: String(snapshot.journalDraft.fun || "")
+    };
+    localStorage.setItem(JOURNAL_DRAFT_KEY, JSON.stringify(state.journalDraft));
+  }
+  if (snapshot.studyDiary) {
+    state.studyDiary = normalizeStudyDiary(snapshot.studyDiary);
+    localStorage.setItem(STUDY_DIARY_KEY, JSON.stringify(state.studyDiary));
+  }
+  renderStatus();
+}
+
+window.EarthCollectionApp = {
+  ready: false,
+  getSnapshot: cloudSnapshot,
+  applySnapshot: applyCloudSnapshot,
+  normalizeEntry
+};
 
 async function start() {
   updateMarsPosition();
@@ -1577,7 +1632,9 @@ async function start() {
   }
   initGlobe();
   renderStatus();
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=19").catch(console.error);
+  window.EarthCollectionApp.ready = true;
+  window.dispatchEvent(new CustomEvent("earth-app-ready"));
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=20").catch(console.error);
 }
 
 start();
