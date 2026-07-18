@@ -8,7 +8,7 @@
   <title>地球收藏夹</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <link rel="stylesheet" href="./styles.css?v=12" />
+  <link rel="stylesheet" href="./styles.css?v=15" />
 </head>
 <body>
   <div class="space" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -21,6 +21,7 @@
         <button id="sharedDiaryBtn" class="icon-action shared-icon" type="button" aria-label="共享日志" title="共享日志">👥</button>
         <button id="studyBtn" class="icon-action study-icon" type="button" aria-label="留学日记" title="留学日记">🎓</button>
         <button id="journalBtn" class="icon-action journal-icon" type="button" aria-label="旅行日志" title="旅行日志">🧳</button>
+        <button id="scrapbookBtn" class="icon-action scrapbook-icon" type="button" aria-label="旅行手帐" title="旅行手帐">📒</button>
         <button id="routeBtn" class="icon-action route-icon" type="button" aria-label="足迹路线" title="足迹路线">🛫</button>
         <button id="calendarBtn" class="icon-action diary-icon" type="button" aria-label="回忆日记" title="回忆日记">📖</button>
         <button id="backupBtn" class="icon-action backup-icon" type="button" aria-label="备份与恢复" title="备份与恢复">💾</button>
@@ -47,12 +48,18 @@
       <button id="recenterBtn" class="recenter-btn" type="button" aria-label="回到全球视角">⌖</button>
     </section>
     <button id="routeShortcutBtn" class="route-shortcut" type="button"><span>🛫</span>我的足迹路线</button>
+    <section id="exploreProgress" class="explore-progress hidden" aria-label="世界探索进度">
+      <div><span>🌏 世界探索</span><b><i id="countriesExplored">0</i>/195</b></div>
+      <div class="explore-progress-track"><i id="exploreProgressBar"></i></div>
+      <small id="exploreProgressText">收藏第一个国家或地区，开启世界进度</small>
+    </section>
 
     <section id="welcome" class="welcome-card">
       <p class="eyebrow">YOUR WORLD, YOUR MOMENTS</p>
       <h1>地球收藏夹</h1>
       <p>世界很大，回忆有坐标</p>
       <button id="startBtn" class="primary-btn" type="button">开始收藏 <span>→</span></button>
+      <button class="welcome-pro-btn" type="button" data-open-pro><span>✦</span> 查看 Pro 计划</button>
     </section>
 
     <section id="statusBar" class="status-bar hidden" aria-live="polite">
@@ -76,10 +83,14 @@
         <article><span>👥</span><div><b>共享日志</b><small>生成朋友共享包，或连接云端和朋友一起写日志。</small></div></article>
         <article><span>🎓</span><div><b>留学日记</b><small>完成支线任务、每日打卡、增加经验并解锁徽章。</small></div></article>
         <article><span>🧳</span><div><b>旅行日志</b><small>按日期把旅行照片、心情和好玩的事情整理成一篇日志。</small></div></article>
-        <article><span>🛫</span><div><b>足迹路线</b><small>查看去过的地方，以及飞机、高铁、大巴和邮轮路线。</small></div></article>
+        <article><span>📒</span><div><b>旅行手帐</b><small>自动读取或上传最多 8 张照片，本地抠图、排版并配上旅行文字，可保存或分享。</small></div></article>
+        <article><span>🛫</span><div><b>足迹路线</b><small>查看飞机、高铁、大巴和邮轮路线；路线页可以显示或关闭小型交通图标。</small></div></article>
+        <article><span>🌏</span><div><b>世界探索进度</b><small>每收藏一个新的国家或地区，主页进度条就会向前一步。</small></div></article>
+        <article><span>📍</span><div><b>地点定位指针</b><small>选择国家和城市后，地球会转到那里并显示地点指针。</small></div></article>
         <article><span>📖</span><div><b>回忆日记</b><small>在日历中查看每天拍过的照片和当时的心情。</small></div></article>
         <article><span>💾</span><div><b>备份与恢复</b><small>把本机记录保存成备份文件，换设备时可以恢复。</small></div></article>
         <article><span>👤</span><div><b>登录与云同步</b><small>用用户名、密码或邮箱登录，在不同浏览器和设备找回收藏。</small></div></article>
+        <article><span>✦</span><div><b>地球收藏夹 Pro</b><small>未来可升级跨设备同步、高清无水印手帐、更多照片容量和共享空间。</small></div></article>
         <article><span>?</span><div><b>使用帮助</b><small>以后想再看这份介绍，随时点右上角的问号。</small></div></article>
         <article><span>⌖</span><div><b>回到全球视角</b><small>地球放得太近时，点它就能重新看到整个地球。</small></div></article>
         <article><span>＋</span><div><b>添加收藏</b><small>选择地点后，用它上传照片并写下新的回忆。</small></div></article>
@@ -87,6 +98,48 @@
       </div>
       <label class="guide-reminder"><input id="guideNoReminderInput" type="checkbox" /><span><b>下次不再自动提醒</b><small>勾选后不会再自动弹出，但仍可点击右上角“?”查看。</small></span></label>
       <button id="guideDoneBtn" class="primary-btn full-btn" type="button">知道了，去登录</button>
+    </section>
+  </dialog>
+
+  <dialog id="proDialog" class="sheet-dialog">
+    <section class="sheet-card pro-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading">
+        <div><p class="eyebrow">KEEP EVERY JOURNEY CLOSE</p><h2>✦ 地球收藏夹 Pro</h2></div>
+        <button class="close-btn" type="button" data-close="proDialog" aria-label="关闭 Pro 计划">×</button>
+      </div>
+      <section class="pro-hero">
+        <span>创始会员计划</span>
+        <h3>把散落在手机里的照片，<br />变成一颗长久保存的回忆星球。</h3>
+        <p>基础收藏会一直免费。Pro 收费的是更安心的云端保存、更漂亮的旅行成品和更方便的共同记录。</p>
+      </section>
+      <div class="pro-plans" aria-label="会员方案">
+        <article>
+          <small>FREE</small>
+          <h3>免费版</h3>
+          <strong>¥0</strong>
+          <ul><li>3D 地球与基础收藏</li><li>足迹路线和旅行日记</li><li>基础云同步与备份</li></ul>
+        </article>
+        <article class="featured">
+          <span class="pro-recommend">推荐</span>
+          <small>PRO</small>
+          <h3>个人会员</h3>
+          <strong>¥99<em>/年</em></strong>
+          <ul><li>更大云端照片容量</li><li>高清无水印旅行手帐</li><li>更多共享空间与路线样式</li><li>完整旅行与年度回忆成品</li></ul>
+        </article>
+        <article>
+          <small>TOGETHER</small>
+          <h3>双人/家庭版</h3>
+          <strong>¥199<em>/年</em></strong>
+          <ul><li>2–5 人共同使用</li><li>共同旅行日志与留言</li><li>协作路线和家庭年度回忆</li></ul>
+        </article>
+      </div>
+      <section class="pro-founder-offer">
+        <span>🎁</span>
+        <div><b>首批 100 名创始会员：¥59/年</b><p>Pro 会员未来每年还可分享 3 个好友 30 天体验名额。</p></div>
+      </section>
+      <button id="proJoinBtn" class="primary-btn full-btn" type="button">登录账号，等待正式开放</button>
+      <p class="pro-note">Pro、意向登记和付款功能正在准备中。现在不会收费，也不会自动续费；正式开放前会再次确认。</p>
     </section>
   </dialog>
 
@@ -111,6 +164,14 @@
 
       <div id="accountSignedOut">
         <p class="account-intro">登录后，本机收藏会自动合并到你的云端账号。在微信、Safari 或 Chrome 使用同一账号，照片和记录都会回来。</p>
+        <section class="account-feature-note" aria-label="新版功能说明">
+          <div><span>✨</span><b>登录后可以继续使用新版功能</b></div>
+          <p>🌏 国家/地区探索进度　📍 地球地点指针</p>
+          <p>🛫 交通图标开关　📒 自动抠图旅行手帐</p>
+          <p>✦ Pro 将提供更大云端容量、高清无水印手帐和更多共享空间</p>
+          <small>账号负责同步收藏与照片；旅行手帐会在当前设备本地生成，不会把原图交给第三方抠图服务。</small>
+        </section>
+        <button class="account-pro-link" type="button" data-open-pro>查看免费版与 Pro 的区别 <span>→</span></button>
         <div class="account-tabs" role="tablist" aria-label="登录方式">
           <button class="account-tab active" type="button" data-account-panel="passwordPanel">密码登录</button>
           <button class="account-tab" type="button" data-account-panel="emailPanel">邮箱登录</button>
@@ -148,6 +209,7 @@
           <span id="syncStatusIcon">☁️</span>
           <div><b id="syncStatusText">正在检查云端数据…</b><small id="syncStatusDetail">请保持网络连接</small></div>
         </div>
+        <button class="account-pro-link" type="button" data-open-pro>✦ 查看 Pro 与创始会员计划 <span>→</span></button>
         <button id="syncNowBtn" class="primary-btn full-btn" type="button">立即同步</button>
         <button id="logoutBtn" class="secondary-btn full-btn account-logout-btn" type="button">退出登录</button>
         <p class="field-tip">退出登录不会删除这台设备里的收藏。换账号时，系统不会把上一账号的数据上传给新账号。</p>
@@ -229,6 +291,7 @@
       <div class="sheet-handle"></div>
       <div class="dialog-heading"><div><p class="eyebrow">MY TRAVEL ROUTE</p><h2>🛫 我的足迹路线</h2></div><button class="close-btn" type="button" data-close="routeDialog">×</button></div>
       <p class="route-intro">路线会按照照片日期连接。飞机、高铁、大巴和邮轮会用不同颜色与高度显示。</p>
+      <label class="route-toggle"><input id="vehicleIconInput" type="checkbox" checked /><span><b>显示交通工具小图标</b><small>关闭后只保留路线，不显示飞机、高铁、大巴和邮轮图标</small></span></label>
       <label class="route-toggle"><input id="closeLoopInput" type="checkbox" checked /><span><b>最后连回出发点</b><small>至少有三个不同地点时形成完整一圈</small></span></label>
       <label class="field"><span>返程交通方式</span><select id="returnModeInput"><option value="plane">✈️ 坐飞机返回</option><option value="train">🚄 坐高铁返回</option><option value="bus">🚌 坐大巴返回</option><option value="cruise">🛳️ 坐邮轮返回</option></select></label>
       <div id="routeSummary" class="route-summary"></div>
@@ -391,6 +454,28 @@
     </section>
   </dialog>
 
+  <dialog id="scrapbookDialog" class="sheet-dialog">
+    <section class="sheet-card scrapbook-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">TRAVEL SCRAPBOOK</p><h2>📒 旅行手帐</h2></div><button class="close-btn" type="button" data-close="scrapbookDialog">×</button></div>
+      <p class="scrapbook-intro">自动读取收藏照片，或临时上传最多 8 张照片。系统会尝试抠除第一张照片的背景，再拼成一页旅行手帐。</p>
+      <label class="field"><span>手帐标题</span><input id="scrapbookTitleInput" maxlength="40" placeholder="例如：夏日环游记" /></label>
+      <label class="field"><span>旅行文字</span><textarea id="scrapbookTextInput" rows="3" maxlength="180" placeholder="会根据地点、日期和心情自动生成，也可以自己修改"></textarea></label>
+      <input id="scrapbookPhotoInput" type="file" accept="image/*" multiple hidden />
+      <button id="scrapbookPhotoBtn" class="scrapbook-photo-btn" type="button"><span>＋</span><b>选择或增加照片</b><small>支持一次选择多张，最多使用 8 张</small></button>
+      <div id="scrapbookPhotoList" class="scrapbook-photo-list"></div>
+      <label class="scrapbook-cutout-toggle"><input id="scrapbookCutoutInput" type="checkbox" checked /><span><b>自动抠图第一张照片</b><small>人物或物品背景较干净时效果最好；复杂背景会自动保留原图。</small></span></label>
+      <button id="generateScrapbookBtn" class="primary-btn full-btn" type="button">自动生成旅行手帐</button>
+      <div id="scrapbookWorking" class="scrapbook-working hidden">正在抠图和排版，请稍候…</div>
+      <div class="scrapbook-canvas-wrap"><canvas id="scrapbookCanvas" width="900" height="1200" aria-label="旅行手帐预览"></canvas></div>
+      <div class="scrapbook-actions">
+        <button id="downloadScrapbookBtn" class="secondary-btn" type="button">保存手帐图片</button>
+        <button id="shareScrapbookBtn" class="primary-btn" type="button">分享手帐</button>
+      </div>
+      <p class="field-tip">手帐图片只在当前设备生成；点击保存后可发给朋友。自动抠图不会上传原图到第三方服务。</p>
+    </section>
+  </dialog>
+
   <dialog id="calendarDialog" class="sheet-dialog">
     <section class="sheet-card calendar-sheet">
       <div class="sheet-handle"></div>
@@ -409,7 +494,8 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="./china-cities.js?v=2"></script>
   <script src="./popular-cities.js?v=1"></script>
-  <script src="./app.js?v=17"></script>
+  <script src="./app.js?v=20"></script>
+  <script src="./scrapbook.js?v=1"></script>
   <script src="./local-share.js?v=1"></script>
   <script src="./cloudbase.bundle.js?v=1"></script>
   <script src="./account-sync.js?v=2"></script>
