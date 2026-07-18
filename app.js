@@ -88,7 +88,7 @@ function notifyCloudSync(type, detail = {}) {
   window.dispatchEvent(new CustomEvent("earth-local-change", { detail: { type, ...detail } }));
 }
 const elements = {
-  welcome: $("#welcome"), startBtn: $("#startBtn"), globe: $("#globe"), fallback: $("#globeFallback"), homeCosmos: $("#homeCosmos"), marsMarker: $("#marsMarker"), marsPositionText: $("#marsPositionText"), statusBar: $("#statusBar"), addBtn: $("#addBtn"), routeBtn: $("#routeBtn"), routeShortcutBtn: $("#routeShortcutBtn"), journalBtn: $("#journalBtn"), studyBtn: $("#studyBtn"), backupBtn: $("#backupBtn"), backupDialog: $("#backupDialog"), helpBtn: $("#helpBtn"), onboardingDialog: $("#onboardingDialog"), guideCloseBtn: $("#guideCloseBtn"), guideDoneBtn: $("#guideDoneBtn"), guideNoReminderInput: $("#guideNoReminderInput"), proDialog: $("#proDialog"), proJoinBtn: $("#proJoinBtn"),
+  welcome: $("#welcome"), startBtn: $("#startBtn"), globe: $("#globe"), fallback: $("#globeFallback"), homeCosmos: $("#homeCosmos"), marsMarker: $("#marsMarker"), marsPositionText: $("#marsPositionText"), statusBar: $("#statusBar"), addBtn: $("#addBtn"), routeBtn: $("#routeBtn"), routeShortcutBtn: $("#routeShortcutBtn"), journalBtn: $("#journalBtn"), studyBtn: $("#studyBtn"), backupBtn: $("#backupBtn"), backupDialog: $("#backupDialog"), helpBtn: $("#helpBtn"), onboardingDialog: $("#onboardingDialog"), guideCloseBtn: $("#guideCloseBtn"), guideDoneBtn: $("#guideDoneBtn"), guideNoReminderInput: $("#guideNoReminderInput"),
   count: $("#collectionCount"), currentPlace: $("#currentPlace"), chooseCityBtn: $("#chooseCityBtn"), recenterBtn: $("#recenterBtn"), zoomHint: $("#zoomHint"), exploreProgress: $("#exploreProgress"), countriesExplored: $("#countriesExplored"), exploreProgressBar: $("#exploreProgressBar"), exploreProgressText: $("#exploreProgressText"),
   locationDialog: $("#locationDialog"), locationForm: $("#locationForm"), countrySearch: $("#countrySearch"), citySearch: $("#citySearch"), countryList: $("#countryList"), cityList: $("#cityList"),
   locateBtn: $("#locateBtn"), addressSearch: $("#addressSearch"), addressSearchBtn: $("#addressSearchBtn"), flatMap: $("#flatMap"), mapStatus: $("#mapStatus"), locationQuickPicks: $("#locationQuickPicks"),
@@ -625,17 +625,6 @@ function finishGuide() {
     state.guideFromStart = false;
     window.dispatchEvent(new CustomEvent("earth-open-account"));
   }
-}
-
-function openProDialog(trigger) {
-  const parentDialog = trigger?.closest?.("dialog");
-  if (parentDialog?.open) parentDialog.close();
-  setTimeout(() => {
-    if (!elements.proDialog.open) {
-      elements.proDialog.querySelector(".sheet-card").scrollTop = 0;
-      elements.proDialog.showModal();
-    }
-  }, parentDialog ? 80 : 0);
 }
 
 function focusLocation(location) {
@@ -1369,11 +1358,6 @@ elements.backupBtn.addEventListener("click", () => elements.backupDialog.showMod
 elements.helpBtn.addEventListener("click", () => openGuide(false));
 elements.guideDoneBtn.addEventListener("click", finishGuide);
 elements.guideCloseBtn.addEventListener("click", finishGuide);
-document.querySelectorAll("[data-open-pro]").forEach((button) => button.addEventListener("click", () => openProDialog(button)));
-elements.proJoinBtn.addEventListener("click", () => {
-  elements.proDialog.close();
-  setTimeout(() => window.dispatchEvent(new CustomEvent("earth-open-account")), 80);
-});
 elements.recenterBtn.addEventListener("click", () => {
   if (!state.globe) return;
   state.globe.pointOfView({ lat: 20, lng: 100, altitude: 2.25 }, 1200);
@@ -1681,7 +1665,7 @@ async function start() {
   renderStatus();
   window.EarthCollectionApp.ready = true;
   window.dispatchEvent(new CustomEvent("earth-app-ready"));
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=26").catch(console.error);
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=27").catch(console.error);
 }
 
 start();
