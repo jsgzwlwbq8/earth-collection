@@ -1,11 +1,12 @@
-const CACHE_NAME = "earth-collection-v23";
+const CACHE_NAME = "earth-collection-v26";
 const FILES = [
   "./",
   "./index.html",
-  "./styles.css?v=12",
+  "./styles.css?v=15",
   "./china-cities.js?v=2",
   "./popular-cities.js?v=1",
-  "./app.js?v=17",
+  "./app.js?v=20",
+  "./scrapbook.js?v=1",
   "./cloudbase.bundle.js?v=1",
   "./account-sync.js?v=2",
   "./local-share.js?v=1",
