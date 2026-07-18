@@ -5,6 +5,7 @@ const ROUTE_SETTINGS_KEY = "earth-collection-route-settings";
 const JOURNAL_DRAFT_KEY = "earth-collection-journal-draft";
 const STUDY_DIARY_KEY = "earth-collection-study-diary";
 const GUIDE_HIDE_KEY = "earth-collection-hide-guide-v1";
+const WORLD_REGION_GOAL = 195;
 const CHINA_CITIES = Array.isArray(window.CHINA_CITIES) ? window.CHINA_CITIES : [];
 const TRAVEL_MODES = {
   plane: { emoji: "✈️", name: "飞机", color: "#82c9ff", altitude: .22, stroke: .26, dashLength: .34, dashGap: .12, speed: 2600 },
@@ -77,7 +78,7 @@ const LOCATIONS = BASE_LOCATIONS.map((item) => ({ ...item, cities: [...item.citi
 
 const state = {
   entries: [], selectedLocation: null, mapSelection: null, activeEntryId: null, imageData: "", globe: null, globeMode: "far", started: false, pendingAdd: false, pendingStudyMemory: false, map: null, mapMarker: null, calendarDate: new Date(),
-  routeSettings: { closeLoop: true, returnMode: "plane" },
+  routeSettings: { closeLoop: true, returnMode: "plane", showVehicleIcons: true },
   journalDraft: { title: "", startDate: "", endDate: "", fun: "" },
   studyDiary: { school: "", city: "", startDate: "", completedQuestIds: [], notes: [], checkIns: [] },
   guideFromStart: false
@@ -87,14 +88,14 @@ function notifyCloudSync(type, detail = {}) {
   window.dispatchEvent(new CustomEvent("earth-local-change", { detail: { type, ...detail } }));
 }
 const elements = {
-  welcome: $("#welcome"), startBtn: $("#startBtn"), globe: $("#globe"), fallback: $("#globeFallback"), homeCosmos: $("#homeCosmos"), marsMarker: $("#marsMarker"), marsPositionText: $("#marsPositionText"), statusBar: $("#statusBar"), addBtn: $("#addBtn"), routeBtn: $("#routeBtn"), routeShortcutBtn: $("#routeShortcutBtn"), journalBtn: $("#journalBtn"), studyBtn: $("#studyBtn"), backupBtn: $("#backupBtn"), backupDialog: $("#backupDialog"), helpBtn: $("#helpBtn"), onboardingDialog: $("#onboardingDialog"), guideCloseBtn: $("#guideCloseBtn"), guideDoneBtn: $("#guideDoneBtn"), guideNoReminderInput: $("#guideNoReminderInput"),
-  count: $("#collectionCount"), currentPlace: $("#currentPlace"), chooseCityBtn: $("#chooseCityBtn"), recenterBtn: $("#recenterBtn"), zoomHint: $("#zoomHint"),
+  welcome: $("#welcome"), startBtn: $("#startBtn"), globe: $("#globe"), fallback: $("#globeFallback"), homeCosmos: $("#homeCosmos"), marsMarker: $("#marsMarker"), marsPositionText: $("#marsPositionText"), statusBar: $("#statusBar"), addBtn: $("#addBtn"), routeBtn: $("#routeBtn"), routeShortcutBtn: $("#routeShortcutBtn"), journalBtn: $("#journalBtn"), studyBtn: $("#studyBtn"), backupBtn: $("#backupBtn"), backupDialog: $("#backupDialog"), helpBtn: $("#helpBtn"), onboardingDialog: $("#onboardingDialog"), guideCloseBtn: $("#guideCloseBtn"), guideDoneBtn: $("#guideDoneBtn"), guideNoReminderInput: $("#guideNoReminderInput"), proDialog: $("#proDialog"), proJoinBtn: $("#proJoinBtn"),
+  count: $("#collectionCount"), currentPlace: $("#currentPlace"), chooseCityBtn: $("#chooseCityBtn"), recenterBtn: $("#recenterBtn"), zoomHint: $("#zoomHint"), exploreProgress: $("#exploreProgress"), countriesExplored: $("#countriesExplored"), exploreProgressBar: $("#exploreProgressBar"), exploreProgressText: $("#exploreProgressText"),
   locationDialog: $("#locationDialog"), locationForm: $("#locationForm"), countrySearch: $("#countrySearch"), citySearch: $("#citySearch"), countryList: $("#countryList"), cityList: $("#cityList"),
   locateBtn: $("#locateBtn"), addressSearch: $("#addressSearch"), addressSearchBtn: $("#addressSearchBtn"), flatMap: $("#flatMap"), mapStatus: $("#mapStatus"), locationQuickPicks: $("#locationQuickPicks"),
   entryDialog: $("#entryDialog"), entryForm: $("#entryForm"), entryFormTitle: $("#entryFormTitle"), entryId: $("#entryId"), photoField: $(".photo-field"), photoInput: $("#photoInput"), photoPicker: $("#photoPicker"), photoPickerText: $("#photoPickerText"), photoPrompt: $("#photoPrompt"), photoPreview: $("#photoPreview"),
   countryInput: $("#countryInput"), countryCodeInput: $("#countryCodeInput"), cityInput: $("#cityInput"), latInput: $("#latInput"), lngInput: $("#lngInput"), placeInput: $("#placeInput"), subjectInput: $("#subjectInput"), dateInput: $("#dateInput"), travelModeInput: $("#travelModeInput"), studyMemoryInput: $("#studyMemoryInput"), typeInput: $("#typeInput"), moodInput: $("#moodInput"), textInput: $("#textInput"),
   detailDialog: $("#detailDialog"), detailPhoto: $("#detailPhoto"), detailType: $("#detailType"), detailMood: $("#detailMood"), detailLocation: $("#detailLocation"), detailSubject: $("#detailSubject"), detailMeta: $("#detailMeta"), detailPlace: $("#detailPlace"), detailText: $("#detailText"), editBtn: $("#editBtn"), deleteBtn: $("#deleteBtn"),
-  cityDialog: $("#cityDialog"), cityDialogTitle: $("#cityDialogTitle"), cityEntries: $("#cityEntries"), routeDialog: $("#routeDialog"), routeSummary: $("#routeSummary"), routeList: $("#routeList"), closeLoopInput: $("#closeLoopInput"), returnModeInput: $("#returnModeInput"), viewWholeRouteBtn: $("#viewWholeRouteBtn"),
+  cityDialog: $("#cityDialog"), cityDialogTitle: $("#cityDialogTitle"), cityEntries: $("#cityEntries"), routeDialog: $("#routeDialog"), routeSummary: $("#routeSummary"), routeList: $("#routeList"), vehicleIconInput: $("#vehicleIconInput"), closeLoopInput: $("#closeLoopInput"), returnModeInput: $("#returnModeInput"), viewWholeRouteBtn: $("#viewWholeRouteBtn"),
   studyDialog: $("#studyDialog"), studySchoolInput: $("#studySchoolInput"), studyCityInput: $("#studyCityInput"), studyStartInput: $("#studyStartInput"), studyChapter: $("#studyChapter"), studyLevel: $("#studyLevel"), studyProgressBar: $("#studyProgressBar"), studyXpText: $("#studyXpText"), studyDaysText: $("#studyDaysText"), studyBadgeGrid: $("#studyBadgeGrid"), dailyCheckinNote: $("#dailyCheckinNote"), sceneryCheckinBtn: $("#sceneryCheckinBtn"), foodCheckinBtn: $("#foodCheckinBtn"), dailyCheckinStatus: $("#dailyCheckinStatus"), dailyCheckinList: $("#dailyCheckinList"), studyQuestCount: $("#studyQuestCount"), studyQuestList: $("#studyQuestList"), studyNoteForm: $("#studyNoteForm"), studyNoteDate: $("#studyNoteDate"), studyNoteMood: $("#studyNoteMood"), studyNoteTitle: $("#studyNoteTitle"), studyNoteText: $("#studyNoteText"), studyPhotoBtn: $("#studyPhotoBtn"), studyPhotoList: $("#studyPhotoList"), studyNoteList: $("#studyNoteList"),
   journalDialog: $("#journalDialog"), journalTitleInput: $("#journalTitleInput"), journalStartInput: $("#journalStartInput"), journalEndInput: $("#journalEndInput"), journalFunInput: $("#journalFunInput"), journalSummary: $("#journalSummary"), journalPreview: $("#journalPreview"), copyJournalBtn: $("#copyJournalBtn"), shareJournalBtn: $("#shareJournalBtn"), calendarBtn: $("#calendarBtn"), calendarDialog: $("#calendarDialog"), calendarTitle: $("#calendarTitle"), calendarGrid: $("#calendarGrid"), moodSummary: $("#moodSummary"), calendarDayList: $("#calendarDayList"), prevMonthBtn: $("#prevMonthBtn"), nextMonthBtn: $("#nextMonthBtn"), newDiaryBtn: $("#newDiaryBtn"), exportBtn: $("#exportBtn"), importInput: $("#importInput"), toast: $("#toast")
 };
@@ -354,10 +355,11 @@ function loadRouteSettings() {
     const saved = JSON.parse(localStorage.getItem(ROUTE_SETTINGS_KEY) || "{}");
     state.routeSettings = {
       closeLoop: saved.closeLoop !== false,
-      returnMode: normalizeTravelMode(saved.returnMode)
+      returnMode: normalizeTravelMode(saved.returnMode),
+      showVehicleIcons: saved.showVehicleIcons !== false
     };
   } catch {
-    state.routeSettings = { closeLoop: true, returnMode: "plane" };
+    state.routeSettings = { closeLoop: true, returnMode: "plane", showVehicleIcons: true };
   }
 }
 
@@ -433,6 +435,16 @@ function toast(message) {
 }
 
 function createMarker(item, mode) {
+  if (item.kind === "selection") {
+    const pointer = document.createElement("div");
+    pointer.className = "location-pointer";
+    const pin = document.createElement("span");
+    pin.textContent = "📍";
+    const label = document.createElement("b");
+    label.textContent = item.city;
+    pointer.append(pin, label);
+    return pointer;
+  }
   if (item.kind === "route") {
     const vehicle = document.createElement("div");
     vehicle.className = `route-vehicle ${item.route.mode}`;
@@ -483,13 +495,15 @@ function updateGlobeLayers(force = false) {
   const groups = cityGroups();
   const routes = travelRoutes();
   const collectionData = mode === "far" ? groups : state.entries.slice(0, mode === "close" ? 45 : 80);
-  const htmlData = [...collectionData, ...routeVehicleMarkers(routes)];
+  const selectionData = state.selectedLocation ? [{ ...state.selectedLocation, kind: "selection" }] : [];
+  const vehicleData = state.routeSettings.showVehicleIcons ? routeVehicleMarkers(routes) : [];
+  const htmlData = [...collectionData, ...vehicleData, ...selectionData];
   state.globe.pointsData(mode === "far" ? groups : [])
     .arcsData(routes)
     .htmlElementsData(htmlData)
     .htmlLat((item) => item.lat)
     .htmlLng((item) => item.lng)
-    .htmlAltitude((item) => item.kind === "route" ? Math.max(.018, travelModeStyle(item.route.mode).altitude * .58) : (mode === "close" ? .045 : .022))
+    .htmlAltitude((item) => item.kind === "selection" ? .055 : item.kind === "route" ? Math.max(.018, travelModeStyle(item.route.mode).altitude * .58) : (mode === "close" ? .045 : .022))
     .htmlElement((item) => createMarker(item, mode));
 }
 
@@ -539,6 +553,7 @@ function begin() {
   setTimeout(() => elements.homeCosmos.classList.add("hidden"), 700);
   elements.statusBar.classList.remove("hidden");
   elements.addBtn.classList.remove("hidden");
+  elements.exploreProgress.classList.remove("hidden");
   setTimeout(() => {
     if (localStorage.getItem(GUIDE_HIDE_KEY) === "1") window.dispatchEvent(new CustomEvent("earth-open-account"));
     else openGuide(true);
@@ -612,9 +627,21 @@ function finishGuide() {
   }
 }
 
+function openProDialog(trigger) {
+  const parentDialog = trigger?.closest?.("dialog");
+  if (parentDialog?.open) parentDialog.close();
+  setTimeout(() => {
+    if (!elements.proDialog.open) {
+      elements.proDialog.querySelector(".sheet-card").scrollTop = 0;
+      elements.proDialog.showModal();
+    }
+  }, parentDialog ? 80 : 0);
+}
+
 function focusLocation(location) {
   state.selectedLocation = location;
   elements.currentPlace.textContent = `${location.country} · ${location.city}`;
+  updateGlobeLayers(true);
   if (state.globe) {
     state.globe.controls().autoRotate = false;
     state.globe.pointOfView({ lat: location.lat, lng: location.lng, altitude: .62 }, 1700);
@@ -692,6 +719,7 @@ function openCity(group) {
 function renderRouteDialog() {
   const stops = routeStops();
   const routes = travelRoutes();
+  elements.vehicleIconInput.checked = state.routeSettings.showVehicleIcons;
   elements.closeLoopInput.checked = state.routeSettings.closeLoop;
   elements.returnModeInput.value = state.routeSettings.returnMode;
   elements.returnModeInput.disabled = !state.routeSettings.closeLoop || stops.length < 3;
@@ -1319,6 +1347,14 @@ function compressImage(file, maxSize = 1400, quality = .8) {
 
 function renderStatus() {
   elements.count.textContent = state.entries.length;
+  const countries = new Set(state.entries.map((entry) => entry.countryCode || entry.countryName).filter(Boolean));
+  const explored = Math.min(WORLD_REGION_GOAL, countries.size);
+  const percentage = explored / WORLD_REGION_GOAL * 100;
+  elements.countriesExplored.textContent = explored;
+  elements.exploreProgressBar.style.width = `${percentage}%`;
+  elements.exploreProgressText.textContent = explored
+    ? `已经点亮 ${explored} 个国家或地区 · 世界探索 ${percentage.toFixed(1)}%`
+    : "收藏第一个国家或地区，开启世界进度";
   updateGlobeLayers(true);
 }
 
@@ -1333,6 +1369,11 @@ elements.backupBtn.addEventListener("click", () => elements.backupDialog.showMod
 elements.helpBtn.addEventListener("click", () => openGuide(false));
 elements.guideDoneBtn.addEventListener("click", finishGuide);
 elements.guideCloseBtn.addEventListener("click", finishGuide);
+document.querySelectorAll("[data-open-pro]").forEach((button) => button.addEventListener("click", () => openProDialog(button)));
+elements.proJoinBtn.addEventListener("click", () => {
+  elements.proDialog.close();
+  setTimeout(() => window.dispatchEvent(new CustomEvent("earth-open-account")), 80);
+});
 elements.recenterBtn.addEventListener("click", () => {
   if (!state.globe) return;
   state.globe.pointOfView({ lat: 20, lng: 100, altitude: 2.25 }, 1200);
@@ -1403,6 +1444,11 @@ elements.locationForm.addEventListener("submit", async (event) => {
 });
 
 elements.calendarBtn.addEventListener("click", openCalendar);
+elements.vehicleIconInput.addEventListener("change", () => {
+  state.routeSettings.showVehicleIcons = elements.vehicleIconInput.checked;
+  saveRouteSettings();
+  updateGlobeLayers(true);
+});
 elements.closeLoopInput.addEventListener("change", () => {
   state.routeSettings.closeLoop = elements.closeLoopInput.checked;
   saveRouteSettings();
@@ -1588,7 +1634,8 @@ async function applyCloudSnapshot(snapshot = {}) {
   if (snapshot.routeSettings) {
     state.routeSettings = {
       closeLoop: snapshot.routeSettings.closeLoop !== false,
-      returnMode: normalizeTravelMode(snapshot.routeSettings.returnMode)
+      returnMode: normalizeTravelMode(snapshot.routeSettings.returnMode),
+      showVehicleIcons: snapshot.routeSettings.showVehicleIcons !== false
     };
     localStorage.setItem(ROUTE_SETTINGS_KEY, JSON.stringify(state.routeSettings));
   }
@@ -1634,7 +1681,7 @@ async function start() {
   renderStatus();
   window.EarthCollectionApp.ready = true;
   window.dispatchEvent(new CustomEvent("earth-app-ready"));
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=23").catch(console.error);
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=26").catch(console.error);
 }
 
 start();
