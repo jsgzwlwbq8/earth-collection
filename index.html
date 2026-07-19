@@ -8,7 +8,7 @@
   <title>地球收藏夹</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <link rel="stylesheet" href="./styles.css?v=16" />
+  <link rel="stylesheet" href="./styles.css?v=17" />
 </head>
 <body>
   <div class="space" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -18,6 +18,7 @@
       <div class="brand"><span class="brand-orbit">🌍</span><strong>地球收藏夹</strong></div>
       <div class="top-actions">
         <button id="accountBtn" class="icon-action account-icon" type="button" aria-label="登录与云同步" title="登录与云同步">👤</button>
+        <button id="nearbySocialBtn" class="icon-action nearby-icon" type="button" aria-label="同城偶遇" title="同城偶遇">💬<i id="nearbySocialBadge" class="nearby-badge hidden">0</i></button>
         <button id="sharedDiaryBtn" class="icon-action shared-icon" type="button" aria-label="共享日志" title="共享日志">👥</button>
         <button id="studyBtn" class="icon-action study-icon" type="button" aria-label="留学日记" title="留学日记">🎓</button>
         <button id="journalBtn" class="icon-action journal-icon" type="button" aria-label="旅行日志" title="旅行日志">🧳</button>
@@ -89,6 +90,7 @@
         <article><span>📖</span><div><b>回忆日记</b><small>在日历中查看每天拍过的照片和当时的心情。</small></div></article>
         <article><span>💾</span><div><b>备份与恢复</b><small>把本机记录保存成备份文件，换设备时可以恢复。</small></div></article>
         <article><span>👤</span><div><b>登录与云同步</b><small>用用户名、密码或邮箱登录，在不同浏览器和设备找回收藏。</small></div></article>
+        <article><span>💬</span><div><b>同城偶遇</b><small>主动开启后，遇见同一城市、最近 5 分钟在线的旅行者，并在弹窗里聊天。</small></div></article>
         <article><span>?</span><div><b>使用帮助</b><small>以后想再看这份介绍，随时点右上角的问号。</small></div></article>
         <article><span>⌖</span><div><b>回到全球视角</b><small>地球放得太近时，点它就能重新看到整个地球。</small></div></article>
         <article><span>＋</span><div><b>添加收藏</b><small>选择地点后，用它上传照片并写下新的回忆。</small></div></article>
@@ -167,6 +169,53 @@
         <button id="logoutBtn" class="secondary-btn full-btn account-logout-btn" type="button">退出登录</button>
         <p class="field-tip">退出登录不会删除这台设备里的收藏。换账号时，系统不会把上一账号的数据上传给新账号。</p>
       </div>
+    </section>
+  </dialog>
+
+  <dialog id="nearbySocialDialog" class="sheet-dialog">
+    <section class="sheet-card nearby-sheet">
+      <div class="sheet-handle"></div>
+      <div class="dialog-heading">
+        <div><p class="eyebrow">MEET HERE, RIGHT NOW</p><h2>💬 同城偶遇</h2></div>
+        <button class="close-btn" type="button" data-close="nearbySocialDialog" aria-label="关闭同城偶遇">×</button>
+      </div>
+      <p class="nearby-intro">双方都主动开启后，系统会寻找同一城市、最近 5 分钟在线的人。只显示昵称和城市，不公开经纬度或收藏内容。</p>
+      <section class="nearby-consent-card">
+        <div>
+          <span id="nearbyStatusIcon">○</span>
+          <div><b id="nearbyStatusText">同城偶遇尚未开启</b><small id="nearbyStatusDetail">登录并选择城市后可以开启</small></div>
+        </div>
+        <label class="nearby-switch">
+          <input id="nearbyEnabledInput" type="checkbox" />
+          <span aria-hidden="true"></span>
+          <b>让同城的人看到我在线</b>
+        </label>
+      </section>
+      <label class="field"><span>聊天昵称</span><input id="nearbyNicknameInput" maxlength="18" placeholder="例如：爱看日落的小林" /></label>
+      <div class="nearby-place-card"><span>📍</span><div><small>当前偶遇地点</small><b id="nearbyPlaceText">请先在地球上选择城市</b></div></div>
+      <div class="nearby-list-heading"><div><small>ONLINE NOW</small><h3>此刻也在这里的人</h3></div><button id="nearbyRefreshBtn" type="button">刷新</button></div>
+      <div id="nearbyPeopleList" class="nearby-people-list">
+        <p class="nearby-empty">开启后，这里会显示与你在同一城市的人。</p>
+      </div>
+      <p class="nearby-safety">安全提醒：不要发送住址、证件、付款信息或精确实时位置。遇到不舒服的聊天，可以随时屏蔽对方。</p>
+    </section>
+  </dialog>
+
+  <dialog id="nearbyChatDialog" class="nearby-chat-dialog">
+    <section class="nearby-chat-card">
+      <header>
+        <span id="nearbyChatAvatar">旅</span>
+        <div><small id="nearbyChatPlace">同城偶遇</small><h3 id="nearbyChatName">旅行者</h3></div>
+        <button id="nearbyChatCloseBtn" type="button" aria-label="关闭聊天">×</button>
+      </header>
+      <div id="nearbyChatMessages" class="nearby-chat-messages" aria-live="polite">
+        <p class="nearby-chat-empty">你们在同一座城市出现了，打个招呼吧 👋</p>
+      </div>
+      <form id="nearbyChatForm" class="nearby-chat-form">
+        <input id="nearbyChatInput" maxlength="240" autocomplete="off" placeholder="说点什么…" required />
+        <button type="submit">发送</button>
+      </form>
+      <footer><button id="nearbyBlockBtn" type="button">屏蔽此人</button><span>聊天内容保存在云端</span></footer>
     </section>
   </dialog>
 
@@ -447,11 +496,12 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="./china-cities.js?v=2"></script>
   <script src="./popular-cities.js?v=1"></script>
-  <script src="./app.js?v=21"></script>
+  <script src="./app.js?v=22"></script>
   <script src="./scrapbook.js?v=1"></script>
   <script src="./local-share.js?v=1"></script>
   <script src="./cloudbase.bundle.js?v=1"></script>
   <script src="./account-sync.js?v=2"></script>
   <script src="./shared-diary.js?v=2"></script>
+  <script src="./nearby-social.js?v=1"></script>
 </body>
 </html>
