@@ -87,6 +87,20 @@
     }
   }
 
+  function announceAccount() {
+    window.dispatchEvent(new CustomEvent("earth-account-changed", {
+      detail: {
+        signedIn: Boolean(currentUser),
+        user: currentUser ? {
+          id: userId(),
+          username: currentUser.username || "",
+          email: currentUser.email || "",
+          nickname: currentUser.nickname || ""
+        } : null
+      }
+    }));
+  }
+
   function userId(user = currentUser) {
     return String(user?.id || user?.uid || "");
   }
@@ -347,6 +361,7 @@
     currentUser = user || resultData(await auth.getSession())?.session?.user || null;
     if (!currentUser) throw new Error("登录成功，但没有取得账号信息");
     showAccountState();
+    announceAccount();
     await syncAll();
   }
 
@@ -464,6 +479,7 @@
       resultData(await auth.signOut());
       currentUser = null;
       showAccountState();
+      announceAccount();
       setSyncStatus("offline", "本机收藏仍保留");
       setMessage("已退出登录");
     } catch (error) {
@@ -503,10 +519,11 @@
       app = cloudbase.init({ env: ENV_ID, region: REGION, accessKey: ACCESS_KEY });
       auth = typeof app.auth === "function" ? app.auth() : app.auth;
       db = app.database();
-      window.EarthCloud = { app, auth, db, envId: ENV_ID, region: REGION, accessKey: ACCESS_KEY };
+      window.EarthCloud = { app, auth, db, envId: ENV_ID, region: REGION, accessKey: ACCESS_KEY, getCurrentUser: () => currentUser };
       const sessionData = resultData(await auth.getSession());
       currentUser = sessionData?.session?.user || null;
       showAccountState();
+      announceAccount();
       if (currentUser) await syncAll();
     } catch (error) {
       console.error(error);
