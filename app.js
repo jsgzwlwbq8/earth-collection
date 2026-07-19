@@ -630,6 +630,7 @@ function finishGuide() {
 function focusLocation(location) {
   state.selectedLocation = location;
   elements.currentPlace.textContent = `${location.country} · ${location.city}`;
+  window.dispatchEvent(new CustomEvent("earth-location-changed", { detail: { location: { ...location } } }));
   updateGlobeLayers(true);
   if (state.globe) {
     state.globe.controls().autoRotate = false;
@@ -1643,8 +1644,14 @@ window.EarthCollectionApp = {
   ready: false,
   getSnapshot: cloudSnapshot,
   applySnapshot: applyCloudSnapshot,
-  normalizeEntry
+  normalizeEntry,
+  getCurrentLocation: () => state.selectedLocation ? { ...state.selectedLocation } : null
 };
+
+window.addEventListener("earth-toast", (event) => {
+  const message = String(event.detail?.message || "");
+  if (message) toast(message);
+});
 
 async function start() {
   updateMarsPosition();
@@ -1665,7 +1672,7 @@ async function start() {
   renderStatus();
   window.EarthCollectionApp.ready = true;
   window.dispatchEvent(new CustomEvent("earth-app-ready"));
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=27").catch(console.error);
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=28").catch(console.error);
 }
 
 start();
