@@ -7,15 +7,17 @@
   <meta name="description" content="世界很大，回忆有坐标" />
   <title>地球收藏夹</title>
   <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="./logo.png" />
+  <link rel="apple-touch-icon" href="./logo.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <link rel="stylesheet" href="./styles.css?v=17" />
+  <link rel="stylesheet" href="./styles.css?v=18" />
 </head>
 <body>
   <div class="space" aria-hidden="true"><i></i><i></i><i></i></div>
 
   <main class="app-shell">
     <header class="topbar">
-      <div class="brand"><span class="brand-orbit">🌍</span><strong>地球收藏夹</strong></div>
+      <div class="brand"><img class="brand-logo" src="./logo.png" alt="" aria-hidden="true" /><strong>地球收藏夹</strong></div>
       <div class="top-actions">
         <button id="accountBtn" class="icon-action account-icon" type="button" aria-label="登录与云同步" title="登录与云同步">👤</button>
         <button id="nearbySocialBtn" class="icon-action nearby-icon" type="button" aria-label="同城偶遇" title="同城偶遇">💬<i id="nearbySocialBadge" class="nearby-badge hidden">0</i></button>
@@ -496,7 +498,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="./china-cities.js?v=2"></script>
   <script src="./popular-cities.js?v=1"></script>
-  <script src="./app.js?v=22"></script>
+  <script src="./app.js?v=23"></script>
   <script src="./scrapbook.js?v=1"></script>
   <script src="./local-share.js?v=1"></script>
   <script src="./cloudbase.bundle.js?v=1"></script>

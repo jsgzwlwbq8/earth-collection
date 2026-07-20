@@ -19,7 +19,7 @@ button { cursor: pointer; }
 .app-shell { position: relative; width: 100%; min-height: 100vh; min-height: 100dvh; overflow: hidden; }
 .topbar { position: fixed; z-index: 20; top: 0; left: 0; width: 100%; padding: calc(14px + env(safe-area-inset-top)) 18px 14px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(#050816 25%, transparent); }
 .brand { display: flex; align-items: center; gap: 10px; letter-spacing: .04em; }
-.brand-orbit { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(157,231,207,.4); border-radius: 50%; box-shadow: 0 0 24px rgba(114,167,255,.28); }
+.brand-logo { display: block; width: 38px; height: 38px; object-fit: cover; border: 1px solid rgba(255,211,110,.5); border-radius: 50%; background: #fff; box-shadow: 0 0 24px rgba(114,167,255,.28); }
 .top-actions { display: flex; gap: 8px; max-width: calc(100vw - 190px); overflow-x: auto; scrollbar-width: none; }
 .top-actions::-webkit-scrollbar { display: none; }
 .icon-action, .recenter-btn, .close-btn { display: grid; place-items: center; border: 1px solid var(--line); color: white; background: rgba(10,18,42,.62); backdrop-filter: blur(16px); }

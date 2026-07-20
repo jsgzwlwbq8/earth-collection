@@ -1672,7 +1672,7 @@ async function start() {
   renderStatus();
   window.EarthCollectionApp.ready = true;
   window.dispatchEvent(new CustomEvent("earth-app-ready"));
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=28").catch(console.error);
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js?v=29").catch(console.error);
 }
 
 start();

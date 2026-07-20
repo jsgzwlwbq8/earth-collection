@@ -1,11 +1,11 @@
-const CACHE_NAME = "earth-collection-v28";
+const CACHE_NAME = "earth-collection-v29";
 const FILES = [
   "./",
   "./index.html",
-  "./styles.css?v=17",
+  "./styles.css?v=18",
   "./china-cities.js?v=2",
   "./popular-cities.js?v=1",
-  "./app.js?v=22",
+  "./app.js?v=23",
   "./scrapbook.js?v=1",
   "./cloudbase.bundle.js?v=1",
   "./account-sync.js?v=2",
@@ -13,7 +13,7 @@ const FILES = [
   "./local-share.js?v=1",
   "./shared-diary.js?v=2",
   "./manifest.webmanifest",
-  "./icon.svg"
+  "./logo.png"
 ];
 
 self.addEventListener("install", (event) => {
