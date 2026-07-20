@@ -8,6 +8,29 @@
   "theme_color": "#050a1a",
   "icons": [
     {
+      "src": "./logo.png?install=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./logo.png?install=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
+{
+  "name": "地球收藏夹",
+  "short_name": "地球收藏夹",
+  "description": "世界很大，回忆有坐标",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#050816",
+  "theme_color": "#050a1a",
+  "icons": [
+    {
       "src": "./logo.png",
       "sizes": "512x512",
       "type": "image/png",
